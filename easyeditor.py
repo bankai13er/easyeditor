@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt # потрібна константа Qt.KeepAspectRatio для зміни розмірів із збереженням пропорцій 
 from PyQt5.QtGui import QPixmap # оптимізована для показу на екрані картинка 
   
-from PIL import Image 
+from PIL import Image, ImageFilter
   
 app = QApplication([]) 
 win = QWidget()       
@@ -98,6 +98,18 @@ class ImageProcessor():
            os.mkdir(path) 
        image_path = os.path.join(path, self.filename) 
        self.image.save(image_path) 
+
+   def do_flip(self):
+       self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+       self.saveImage()
+       image_path = os.path.join(workdir, self.save_dir, self.filename)
+       self.showImage(image_path)
+
+   def do_sharpen(self):
+       self.image = self.image.filter(ImageFilter.SHARPEN)
+       self.saveImage()
+       image_path = os.path.join(workdir, self.filename)
+       self.showImage(image_path)
   
    def showImage(self, path): 
        lb_image.hide() 
@@ -113,10 +125,14 @@ def showChosenImage():
        workimage.loadImage(workdir, filename) 
        image_path = os.path.join(workimage.dir, workimage.filename) 
        workimage.showImage(image_path) 
+
+
   
 workimage = ImageProcessor() #поточне робоче зображення для роботи 
 lw_files.currentRowChanged.connect(showChosenImage) 
   
 btn_bw.clicked.connect(workimage.do_bw) 
+btn_flip.clicked.connect(workimage.do_flip) 
+btn_sharp.clicked.connect(workimage.do_sharpen) 
   
 app.exec()
